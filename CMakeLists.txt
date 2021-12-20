@@ -44,4 +44,15 @@ add_executable(streamer
     nordic_spp_le_streamer.c
     examples_main.c
     )
+
 target_link_libraries(streamer btstack)
+
+add_executable(central
+    central_nrf_spp.c
+    examples_main.c
+    )
+
+target_link_libraries(central btstack)
+target_compile_definitions(central
+    PRIVATE
+    -DTEST_CENTRAL)

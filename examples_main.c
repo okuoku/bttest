@@ -1,3 +1,11 @@
+#ifdef TEST_CENTRAL
+#define DBNAME "db_central.tlv"
+#define SKIP_DEVICE 1
+#else
+#define DBNAME "db.tlv"
+#define SKIP_DEVICE 0
+#endif
+
 #include "btstack_config.h"
 #include "btstack_run_loop.h"
 #include "btstack_run_loop_posix.h"
@@ -16,7 +24,7 @@ int btstack_main(void);
 
 int
 main(int ac, char** av){
-    int skip_device = 0;
+    int skip_device = SKIP_DEVICE;
     int found_device = 0;
     struct libusb_device_descriptor d;
     uint8_t path[8];
@@ -33,7 +41,7 @@ main(int ac, char** av){
         printf("Device %x:%x\n",d.idVendor,d.idProduct);
         if(d.idVendor == 0x0a12 && d.idProduct == 1){
             if(skip_device){
-                skip_device = 0;
+                skip_device--;
                 printf("Skip one.\n");
             }else{
                 found_device = 1;
@@ -48,7 +56,7 @@ main(int ac, char** av){
         printf("pathlen = %d\n", pathlen);
         hci_transport_usb_set_path(pathlen, path);
     }else{
-        printf("not fouusd.\n");
+        printf("not found.\n");
         return 1;
     }
 
@@ -59,7 +67,7 @@ main(int ac, char** av){
     hci_init(hci_transport_usb_instance(), NULL);
 
     /* configure TLV db */
-    tlv = btstack_tlv_posix_init_instance(&tlv_posix_ctx, "db.tlv");
+    tlv = btstack_tlv_posix_init_instance(&tlv_posix_ctx, DBNAME);
     btstack_tlv_set_instance(tlv, &tlv_posix_ctx);
     le_device_db_tlv_configure(tlv, &tlv_posix_ctx);
 
